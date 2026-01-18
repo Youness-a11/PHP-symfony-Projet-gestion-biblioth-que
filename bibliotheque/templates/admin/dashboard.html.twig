@@ -1,0 +1,257 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord Admin{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Tableau de bord Admin</h2>
+        <a href="{{ path('admin_book_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Ajouter un livre
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Livres total</h6>
+                            <h2 class="card-title">{{ totalBooks }}</h2>
+                        </div>
+                        <i class="fas fa-book fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Demandes en attente</h6>
+                            <h2 class="card-title">{{ pendingLoans }}</h2>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Emprunts actifs</h6>
+                            <h2 class="card-title">{{ activeLoans }}</h2>
+                        </div>
+                        <i class="fas fa-exchange-alt fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2">Utilisateurs</h6>
+                            <h2 class="card-title">{{ totalUsers }}</h2>
+                        </div>
+                        <i class="fas fa-users fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Loan Requests -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2 text-warning"></i>Demandes d'emprunt en attente</h5>
+                    <span class="badge bg-warning">{{ loans|length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if loans|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Livre</th>
+                                        <th>Date demande</th>
+                                        <th>Statut Paiement</th>
+                                        <th>Actions</th>
+                                        <th>Notification</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for loan in loans %}
+                                        <tr>
+                                            <td>{{ loan.user.email }}</td>
+                                            <td>
+                                                <strong>{{ loan.book.title }}</strong><br>
+                                                <small class="text-muted">{{ loan.book.author }}</small>
+                                            </td>
+                                            <td>{{ loan.loanDate|date('d/m/Y H:i') }}</td>
+                                            <td>
+                                                {% if loan.payment %}
+                                                    {% if loan.payment.status == 'paid' %}
+                                                        <span class="badge bg-success">Payé</span>
+                                                    {% elseif loan.payment.status == 'pending' %}
+                                                        <span class="badge bg-warning">En attente paiement</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">{{ loan.payment.status }}</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="badge bg-info">En attente validation</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    {% if not loan.payment %}
+                                                        <a href="{{ path('admin_loan_approve', {'id': loan.id}) }}" 
+                                                           class="btn btn-success btn-sm" 
+                                                           onclick="return confirm('Créer un paiement de 5Dh pour \\'{{ loan.book.title }}\\' par {{ loan.user.email }} ?')">
+                                                            <i class="fas fa-check me-1"></i> Valider
+                                                        </a>
+                                                    {% else %}
+                                                        {% if loan.payment.status == 'pending' %}
+                                                            <button class="btn btn-info btn-sm copy-payment-link" 
+                                                                    data-payment-url="{{ path('payment_show', {'id': loan.payment.id}) }}"
+                                                                    data-user-email="{{ loan.user.email }}"
+                                                                    data-book-title="{{ loan.book.title }}">
+                                                                <i class="fas fa-copy me-1"></i> Lien
+                                                            </button>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    
+                                                    <a href="{{ path('admin_loan_reject', {'id': loan.id}) }}" 
+                                                       class="btn btn-danger btn-sm" 
+                                                       onclick="return confirm('Refuser l\\'emprunt de \\'{{ loan.book.title }}\\' par {{ loan.user.email }} ?')">
+                                                        <i class="fas fa-times me-1"></i> Refuser
+                                                    </a>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if loan.payment and loan.payment.status == 'pending' %}
+                                                    <small class="text-muted">À envoyer à:<br>{{ loan.user.email }}</small>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5>Aucune demande en attente</h5>
+                            <p class="text-muted">Toutes les demandes sont traitées</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Recent Books -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2 text-primary"></i>Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_books') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-book me-2"></i>Gérer les livres
+                        </a>
+                        <a href="{{ path('admin_loans') }}" class="btn btn-outline-info">
+                            <i class="fas fa-history me-2"></i>Voir historique
+                        </a>
+                        <a href="{{ path('admin_book_new') }}" class="btn btn-outline-success">
+                            <i class="fas fa-plus me-2"></i>Nouveau livre
+                        </a>
+                        <a href="{{ path('admin_payments') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-credit-card me-2"></i>Paiements
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Books -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2 text-primary"></i>Livres récents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for book in books|slice(0, 5) %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ book.title }}</h6>
+                                        <small class="text-muted">{{ book.author }}</small>
+                                    </div>
+                                    <span class="badge {% if book.available %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if book.available %}Dispo{% else %}Emp.{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <small class="text-muted">Aucun livre</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ path('admin_books') }}" class="btn btn-outline-primary btn-sm">
+                            Voir tous les livres
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Copy payment link functionality
+        document.querySelectorAll('.copy-payment-link').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var paymentUrl = this.getAttribute('data-payment-url');
+                var userEmail = this.getAttribute('data-user-email');
+                var bookTitle = this.getAttribute('data-book-title');
+                
+                // Create full URL
+                var fullUrl = window.location.origin + paymentUrl;
+                
+                // Create message to copy
+                var message = "Bonjour,\n\n" +
+                            "Votre emprunt du livre \"" + bookTitle + "\" a été approuvé.\n" +
+                            "Veuillez effectuer le paiement de 5Dh à l'adresse suivante:\n" +
+                            fullUrl + "\n\n" +
+                            "Cordialement,\nL'équipe de la bibliothèque";
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(message).then(function() {
+                    alert('✅ Message copié dans le presse-papier!\n\n' + 
+                          'Envoyez-le par email à: ' + userEmail);
+                }, function(err) {
+                    // Fallback for older browsers
+                    var textArea = document.createElement("textarea");
+                    textArea.value = message;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('✅ Message copié! Envoyez-le à: ' + userEmail);
+                });
+            });
+        });
+    });
+    </script>
+{% endblock %}

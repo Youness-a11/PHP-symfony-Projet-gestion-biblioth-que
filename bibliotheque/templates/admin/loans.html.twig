@@ -1,0 +1,69 @@
+{# templates/admin/loans.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Historique des emprunts{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-exchange-alt me-2 text-primary"></i>Historique des emprunts</h2>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Tous les emprunts ({{ loans|length }})</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Livre</th>
+                            <th>Date emprunt</th>
+                            <th>Date retour</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                            <tr>
+                                <td>{{ loan.user.email }}</td>
+                                <td>
+                                    <strong>{{ loan.book.title }}</strong><br>
+                                    <small class="text-muted">{{ loan.book.author }}</small>
+                                </td>
+                                <td>{{ loan.loanDate|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    {% if loan.returnDate %}
+                                        {{ loan.returnDate|date('d/m/Y') }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if loan.status == 'valide' %}
+                                        <span class="badge bg-success">Validé</span>
+                                    {% elseif loan.status == 'en_attente' %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% elseif loan.status == 'refuse' %}
+                                        <span class="badge bg-danger">Refusé</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ loan.status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                                    <h5>Aucun emprunt trouvé</h5>
+                                    <p class="text-muted">Aucun emprunt n'a été effectué</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

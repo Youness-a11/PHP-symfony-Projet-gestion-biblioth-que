@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Debug LoanController{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card border-0 shadow-sm border-start border-4 border-info bg-light">
+        <div class="card-body p-5">
+            <div class="d-flex align-items-center mb-4">
+                <div class="bg-white p-3 rounded-circle shadow-sm me-3 text-info">
+                    <i class="fas fa-code fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="h3 fw-bold mb-0">Hello {{ controller_name }}! ✅</h1>
+                    <span class="badge bg-info text-dark">Page de développement</span>
+                </div>
+            </div>
+
+            <p class="lead text-muted">Ce message amical provient de vos fichiers sources :</p>
+            
+            <div class="bg-white p-4 rounded-3 shadow-sm border">
+                <ul class="list-unstyled mb-0 font-monospace text-secondary">
+                    <li class="mb-3">
+                        <i class="fas fa-file-code me-2 text-primary"></i> 
+                        Controller : <br>
+                        <code class="bg-light px-2 py-1 rounded text-dark d-block mt-1">C:/Users/lenovo/bibliotheque/src/Controller/LoanController.php</code>
+                    </li>
+                    <li>
+                        <i class="fab fa-html5 me-2 text-danger"></i> 
+                        Template : <br>
+                        <code class="bg-light px-2 py-1 rounded text-dark d-block mt-1">C:/Users/lenovo/bibliotheque/templates/loan/index.html.twig</code>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

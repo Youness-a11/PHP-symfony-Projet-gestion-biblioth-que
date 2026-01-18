@@ -1,0 +1,52 @@
+{# templates/admin/book_form.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{% if edit_mode %}Modifier{% else %}Ajouter{% endif %} un livre{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">
+                        <i class="fas {% if edit_mode %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                        {% if edit_mode %}Modifier le livre{% else %}Ajouter un nouveau livre{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.title) }}
+                        {{ form_widget(form.title) }}
+                        {{ form_errors(form.title) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.author) }}
+                        {{ form_widget(form.author) }}
+                        {{ form_errors(form.author) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.description) }}
+                        {{ form_widget(form.description) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('admin_books') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-success px-4 fw-bold shadow-sm">
+                            <i class="fas fa-save me-2"></i> 
+                            {% if edit_mode is defined and edit_mode %}Modifier{% endif %}
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

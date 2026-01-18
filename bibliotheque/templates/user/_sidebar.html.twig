@@ -1,0 +1,29 @@
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="text-center mb-4">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                <i class="fas fa-user fa-2x"></i>
+            </div>
+            <h5 class="mb-1">{{ app.user.email }}</h5>
+            <small class="text-muted">Membre bibliothèque</small>
+        </div>
+        
+        <div class="list-group list-group-flush">
+            <a href="{{ path('user_dashboard') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-tachometer-alt me-2"></i> Tableau de bord
+            </a>
+            <a href="{{ path('user_loans') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-book me-2"></i> Mes emprunts
+            </a>
+            <a href="{{ path('user_payments') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-credit-card me-2"></i> Mes paiements
+            </a>
+            <a href="{{ path('user_profile') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-user-cog me-2"></i> Mon profil
+            </a>
+            <a href="{{ path('book_index') }}" class="list-group-item list-group-item-action">
+                <i class="fas fa-home me-2"></i> Catalogue
+            </a>
+        </div>
+    </div>
+</div>

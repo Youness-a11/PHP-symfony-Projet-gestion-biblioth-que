@@ -1,0 +1,269 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Compte{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user fa-2x"></i>
+                        </div>
+                        <h5 class="mb-1">{{ app.user.email }}</h5>
+                        <small class="text-muted">Membre depuis 2024</small>
+                    </div>
+                    
+                    <div class="list-group list-group-flush">
+                        <a href="{{ path('user_dashboard') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-tachometer-alt me-2"></i> Tableau de bord
+                        </a>
+                        <a href="{{ path('user_loans') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-book me-2"></i> Mes emprunts
+                        </a>
+                        <a href="{{ path('user_payments') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-credit-card me-2"></i> Mes paiements
+                        </a>
+                        <a href="{{ path('user_profile') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-cog me-2"></i> Mon profil
+                        </a>
+                        <a href="{{ path('book_index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-home me-2"></i> Catalogue
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Mon Tableau de bord</h2>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2">Emprunts actifs</h6>
+                                    <h3 class="card-title">
+                                        {{ loans|filter(l => l.status == 'valide' or l.status == 'pending_payment')|length }}
+                                    </h3>
+                                </div>
+                                <i class="fas fa-book fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2">Emprunts terminés</h6>
+                                    <h3 class="card-title">
+                                        {{ loans|filter(l => l.status == 'refuse')|length }}
+                                    </h3>
+                                </div>
+                                <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-subtitle mb-2">En attente</h6>
+                                    <h3 class="card-title">
+                                        {{ loans|filter(l => l.status == 'en_attente')|length }}
+                                    </h3>
+                                </div>
+                                <i class="fas fa-clock fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2 text-primary"></i>Mes notifications</h5>
+                </div>
+                <div class="card-body">
+                    {% if notifications|length > 0 %}
+                        <div class="list-group">
+                            {% for notification in notifications %}
+                                <div class="list-group-item {% if not notification.isRead %}bg-light{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="mb-1">{{ notification.message }}</p>
+                                            <small class="text-muted">{{ notification.createdAt|date('d/m/Y H:i') }}</small>
+                                        </div>
+                                        <div>
+                                            {% if notification.link %}
+                                                <a href="{{ notification.link }}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </a>
+                                            {% endif %}
+                                            {% if not notification.isRead %}
+                                                <span class="badge bg-warning">Nouveau</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-bell-slash fa-2x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Aucune notification</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Loans -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Derniers emprunts</h5>
+                </div>
+                <div class="card-body">
+                    {% if loans|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Livre</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Paiement</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for loan in loans|slice(0, 5) %}
+                                        <tr>
+                                            <td class="align-middle">
+                                                <strong>{{ loan.book.title }}</strong><br>
+                                                <small class="text-muted">{{ loan.book.author }}</small>
+                                            </td>
+
+                                            <td class="align-middle">{{ loan.loanDate|date('d/m/Y') }}</td>
+
+                                            <td class="align-middle">
+                                                {% if loan.status == 'en_attente' %}
+                                                    <span class="badge bg-warning text-dark">En attente</span>
+                                                {% elseif loan.status == 'valide' %}
+                                                    <span class="badge bg-success">Actif</span>
+                                                {% elseif loan.status == 'pending_payment' %}
+                                                    <span class="badge bg-info text-dark">Paiement requis</span>
+                                                {% elseif loan.status == 'refuse' %}
+                                                    <span class="badge bg-danger">Refusé</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ loan.status }}</span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td class="align-middle text-end">
+                                                {% if loan.payment %}
+                                                    {% if loan.payment.status == 'paid' %}
+                                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Payé</span>
+                                                    {% elseif loan.payment.status == 'pending' %}
+                                                        <a href="{{ path('payment_show', {'id': loan.payment.id}) }}" class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-credit-card me-1"></i> Payer 5Dh
+                                                        </a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-muted small">Aucun paiement</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ path('user_loans') }}" class="btn btn-outline-primary">
+                                Voir tous mes emprunts
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                            <h5>Aucun emprunt</h5>
+                            <p class="text-muted">Vous n'avez pas encore emprunté de livres</p>
+                            <a href="{{ path('book_index') }}" class="btn btn-primary">
+                                <i class="fas fa-book me-2"></i>Explorer le catalogue
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-credit-card me-2 text-primary"></i>Derniers paiements</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Livre</th>
+                                        <th>Montant</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments|slice(0, 5) %}
+                                        <tr>
+                                            <td>{{ payment.createdAt|date('d/m/Y H:i') }}</td>
+                                            <td>{{ payment.loan.book.title }}</td>
+                                            <td>{{ payment.amount }}Dh</td>
+                                            <td>
+                                                <span class="badge bg-{{ payment.status == 'paid' ? 'success' : 'warning' }}">
+                                                    {{ payment.status == 'paid' ? 'Payé' : 'En attente' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('payment_show', {'id': payment.id}) }}" 
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ path('user_payments') }}" class="btn btn-outline-primary">
+                                Voir tous mes paiements
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                            <h5>Aucun paiement</h5>
+                            <p class="text-muted">Vous n'avez pas encore effectué de paiements</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
